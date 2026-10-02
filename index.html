@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mega Quiz 3.0</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1e1e2f, #0f0f1b);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 15px;
+    }
+
+    .card {
+      background: #282a36;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 20px;
+      color: #50fa7b;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    label {
+      font-size: 14px;
+      color: #bd93f9;
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: #44475a;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #ff79c6;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #ff92d0;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .timer-container {
+      width: 100%;
+      background: #44475a;
+      height: 10px;
+      border-radius: 5px;
+      margin: 15px 0;
+      overflow: hidden;
+    }
+
+    .timer-bar {
+      height: 100%;
+      width: 100%;
+      background: #ff5555;
+      transition: width 1s linear;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      font-size: 14px;
+      color: #f1fa8c;
+      font-weight: bold;
+    }
+
+    .question-text {
+      font-size: 18px;
+      margin-bottom: 20px;
+      line-height: 1.4;
+      min-height: 50px;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .opt-btn {
+      background: #44475a;
+      color: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      font-size: 16px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .opt-btn.correct {
+      background: #50fa7b !important;
+      color: #282a36 !important;
+      font-weight: bold;
+    }
+
+    .opt-btn.wrong {
+      background: #ff5555 !important;
+      color: #fff !important;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .score-title {
+      font-size: 28px;
+      color: #f1fa8c;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TELA INICIAL -->
+  <div class="card" id="setup-card">
+    <h1>Mega Quiz 3.0 🎮</h1>
+    
+    <div class="form-group">
+      <label>Categoria:</label>
+      <select id="category-select">
+        <option value="futebol">⚽ Futebol</option>
+        <option value="geral">🧠 Conhecimentos Gerais</option>
+        <option value="marvel">🦸‍♂️ Marvel</option>
+        <option value="dc">🦇 DC Comics</option>
+        <option value="todas">🔀 Todas (Misturado)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Dificuldade:</label>
+      <select id="difficulty-select">
+        <option value="facil">Fácil</option>
+        <option value="medio">Médio</option>
+        <option value="dificil">Difícil</option>
+        <option value="misto">Misto (Todas as dificuldades)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Quantidade de Perguntas:</label>
+      <select id="count-select">
+        <option value="5">5 Perguntas</option>
+        <option value="10">10 Perguntas</option>
+        <option value="20">20 Perguntas</option>
+        <option value="30">30 Perguntas</option>
+        <option value="40">40 Perguntas</option>
+        <option value="50">50 Perguntas</option>
+      </select>
+    </div>
+
+    <button onclick="iniciarJogo()">Começar Jogo</button>
+  </div>
+
+  <!-- TELA DO JOGO -->
+  <div class="card hidden" id="quiz-card">
+    <div class="stats">
+      <span id="progress-text">Pergunta 1/10</span>
+      <span id="timer-text">⏱️ 15s</span>
+    </div>
+
+    <div class="timer-container">
+      <div class="timer-bar" id="timer-bar"></div>
+    </div>
+
+    <div class="question-text" id="question-text">A carregar pergunta...</div>
+
+    <div class="options-grid" id="options-container"></div>
+  </div>
+
+  <!-- TELA DE RESULTADOS -->
+  <div class="card hidden" id="result-card">
+    <div class="score-title">Fim de Jogo! 🏆</div>
+    <p id="final-score" style="font-size: 20px; margin: 20px 0;"></p>
+    <button onclick="voltarMenu()">Jogar Novamente</button>
+  </div>
+
+  <script>
+    // BANCO DE PERGUNTAS EXTENSO
+    const bancoPerguntas = {
+      futebol: {
+        facil: [
+          { q: "Quem ganhou a Champions League em 2022?", opts: ["Real Madrid", "Liverpool", "Manchester City", "Chelsea"], ans: 0 },
+          { q: "Qual país venceu a Copa do Mundo de 2022?", opts: ["França", "Argentina", "Brasil", "Croácia"], ans: 1 },
+          { q: "Quantas Bolas de Ouro tem Lionel Messi (até 2023)?", opts: ["7", "8", "6", "5"], ans: 1 },
+          { q: "Em que clube português Cristiano Ronaldo começou a sua carreira profissional?", opts: ["Sporting CP", "SL Benfica", "FC Porto", "SC Braga"], ans: 0 },
+          { q: "Qual clube tem mais títulos da Champions League?", opts: ["AC Milan", "Bayern Munique", "Real Madrid", "Barcelona"], ans: 2 },
+          { q: "Em que país é disputada a Premier League?", opts: ["Espanha", "Inglaterra", "Alemanha", "Itália"], ans: 1 },
+          { q: "Qual jogador é conhecido como 'O Rei do Futebol'?", opts: ["Maradona", "Pelé", "Cruyff", "Eusébio"], ans: 1 },
+          { q: "Quantos jogadores de cada equipa entram em campo num jogo de futebol?", opts: ["10", "11", "12", "9"], ans: 1 },
+          { q: "Em que clube joga atualmente Erling Haaland (2026)?", opts: ["Real Madrid", "PSG", "Manchester City", "Bayern Munique"], ans: 2 },
+          { q: "Qual é a seleção conhecida como 'Seleção Canarinho'?", opts: ["Colômbia", "Brasil", "Equador", "Austrália"], ans: 1 }
+        ],
+        medio: [
+          { q: "Quem marcou o golo da vitória da Alemanha na final da Copa de 2014?", opts: ["Thomas Müller", "Mario Götze", "Miroslav Klose", "Toni Kroos"], ans: 1 },
+          { q: "Qual seleção venceu o Euro 2016?", opts: ["França", "Inglaterra", "Portugal", "Alemanha"], ans: 2 },
+          { q: "Em que ano o Santos de Pelé venceu a sua primeira Libertadores?", opts: ["1962", "1963", "1970", "1958"], ans: 0 },
+          { q: "Quem foi o treinador do Barcelona no famoso 'Sextete' em 2009?", opts: ["Luis Enrique", "Pep Guardiola", "Frank Rijkaard", "Xavi"], ans: 1 },
+          { q: "Qual é o maior artilheiro da história da Champions League?", opts: ["Lionel Messi", "Robert Lewandowski", "Cristiano Ronaldo", "Karim Benzema"], ans: 2 },
+          { q: "Quem venceu a Copa América de 2021?", opts: ["Brasil", "Argentina", "Colômbia", "Uruguai"], ans: 1 },
+          { q: "Em que ano a Itália venceu o tetra na Copa do Mundo?", opts: ["1994", "2002", "2006", "2010"], ans: 2 },
+          { q: "Qual clube venceu a Copa Libertadores de 2023?", opts: ["Boca Juniors", "Palmeiras", "Fluminense", "Flamengo"], ans: 2 },
+          { q: "Quem usava a camisola 10 do Brasil na Copa do Mundo de 2002?", opts: ["Rivaldo", "Ronaldinho Gaúcho", "Kaká", "Juninho"], ans: 0 },
+          { q: "Qual clube espanhol é conhecido como 'Os Colchoneros'?", opts: ["Valencia", "Sevilla", "Atletico de Madrid", "Athletic Bilbao"], ans: 2 }
+        ],
+        dificil: [
+          { q: "Quem foi o melhor marcador do Euro 2004?", opts: ["Milan Baroš", "Wayne Rooney", "Cristiano Ronaldo", "Angelos Charisteas"], ans: 0 },
+          { q: "Qual seleção venceu a primeira Copa do Mundo em 1930?", opts: ["Argentina", "Uruguai", "Brasil", "Itália"], ans: 1 },
+          { q: "Em que clube jogava Luka Modrić antes de ir para o Real Madrid?", opts: ["Dinamo Zagreb", "Tottenham", "Ajax", "Borussia Dortmund"], ans: 1 },
+          { q: "Quem marcou o golo mais rápido da história da Champions League?", opts: ["Roy Makaay", "Jonas", "Alessandro Del Piero", "Clarence Seedorf"], ans: 0 },
+          { q: "Que país organizou a Copa do Mundo de 1978?", opts: ["México", "Alemanha Ocidental", "Argentina", "Espanha"], ans: 2 },
+          { q: "Quem ganhou o prémio Golden Boy em 2018?", opts: ["Kylian Mbappé", "Matthijs de Ligt", "João Félix", "Erling Haaland"], ans: 1 },
+          { q: "Qual destas seleções NUNCA venceu uma Copa do Mundo?", opts: ["Inglaterra", "Espanha", "Holanda", "França"], ans: 2 },
+          { q: "Em que ano o Liverpool fez o milagre de Istambul contra o AC Milan?", opts: ["2003", "2005", "2007", "2009"], ans: 1 },
+          { q: "Qual jogador fez um hat-trick na final da Copa do Mundo de 2022?", opts: ["Lionel Messi", "Kylian Mbappé", "Julian Alvarez", "Angel Di Maria"], ans: 1 },
+          { q: "Qual clube venceu a primeira edição da Liga Conferência da UEFA?", opts: ["Feyenoord", "AS Roma", "West Ham", "Fiorentina"], ans: 1 }
+        ]
+      },
+      geral: {
+        facil: [
+          { q: "Qual é a capital de França?", opts: ["Londres", "Berlim", "Paris", "Madri"], ans: 2 },
+          { q: "Quantos continentes existem no planeta Terra?", opts: ["5", "6", "7", "8"], ans: 1 },
+          { q: "Qual é o maior oceano do mundo?", opts: ["Atlântico", "Índico", "Glacial Ártico", "Pacífico"], ans: 3 },
+          { q: "Qual é o planeta mais próximo do Sol?", opts: ["Vénus", "Marte", "Mercúrio", "Júpiter"], ans: 2 },
+          { q: "Qual é o animal terrestre mais rápido do mundo?", opts: ["Leão", "Gepardo", "Gazela", "Cavalo"], ans: 1 },
+          { q: "Em que país ficam as Pirâmides de Gizé?", opts: ["Grécia", "Egito", "México", "Iraque"], ans: 1 },
+          { q: "Qual é a língua oficial do Brasil?", opts: ["Espanhol", "Inglês", "Português", "Francês"], ans: 2 },
+          { q: "Quantas cores tem o arco-íris?", opts: ["5", "6", "7", "8"], ans: 2 },
+          { q: "Qual é o metal cujo símbolo químico é Au?", opts: ["Prata", "Ouro", "Cobre", "Alumínio"], ans: 1 },
+          { q: "Qual é o país mais populoso do mundo?", opts: ["EUA", "Rússia", "Índia", "China"], ans: 2 }
+        ],
+        medio: [
+          { q: "Qual é o elemento químico com o símbolo 'O'?", opts: ["Ouro", "Oxigénio", "Ósmio", "Ozono"], ans: 1 },
+          { q: "Em que ano terminou a Segunda Guerra Mundial?", opts: ["1943", "1945", "1950", "1939"], ans: 1 },
+          { q: "Quem pintou a obra 'Mona Lisa'?", opts: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"], ans: 2 },
+          { q: "Qual é o maior osso do corpo humano?", opts: ["Fémur", "Tíbia", "Crânio", "Costela"], ans: 0 },
+          { q: "Qual é a capital do Japão?", opts: ["Pequim", "Seul", "Tóquio", "Bangkok"], ans: 2 },
+          { q: "Quantos dentes tem um adulto humano com a dentição completa?", opts: ["28", "30", "32", "36"], ans: 2 },
+          { q: "Qual é o livro mais vendido no mundo a seguir à Bíblia?", opts: ["Dom Quixote", "O Senhor dos Anéis", "Harry Potter", "O Pequeno Príncipe"], ans: 0 },
+          { q: "Em que país surgiu o jogo de xadrez?", opts: ["China", "Índia", "Pérsia", "Egito"], ans: 1 },
+          { q: "Qual é a velocidade da luz aproximadamente?", opts: ["300.000 km/s", "150.000 km/s", "1.000.000 km/s", "500.000 km/s"], ans: 0 },
+          { q: "Qual é o maior rio do mundo em volume de água?", opts: ["Rio Nilo", "Rio Amazonas", "Rio Mississípi", "Rio Congo"], ans: 1 }
+        ],
+        dificil: [
+          { q: "Qual é o país mais pequeno do mundo em área?", opts: ["Mónaco", "Vaticano", "Nauru", "San Marino"], ans: 1 },
+          { q: "Qual é o elemento mais abundante no universo?", opts: ["Oxigénio", "Lítio", "Hidrogénio", "Hélio"], ans: 2 },
+          { q: "Em que ano ocorreu a Revolução Francesa?", opts: ["1789", "1776", "1812", "1804"], ans: 0 },
+          { q: "Quem escreveu a peça 'Hamlet'?", opts: ["Charles Dickens", "William Shakespeare", "Luís de Camões", "Eça de Queirós"], ans: 1 },
+          { q: "Qual é a capital da Austrália?", opts: ["Sydney", "Melbourne", "Canberra", "Brisbane"], ans: 2 },
+          { q: "Qual é a camada mais interna da Terra?", opts: ["Crosta", "Manto", "Núcleo", "Litosfera"], ans: 2 },
+          { q: "Quem descobriu a Penicilina?", opts: ["Louis Pasteur", "Alexander Fleming", "Marie Curie", "Isaac Newton"], ans: 1 },
+          { q: "Em que ano caiu o Muro de Berlim?", opts: ["1987", "1989", "1991", "1985"], ans: 1 },
+          { q: "Qual é o ponto mais alto da superfície terrestre?", opts: ["K2", "Monte Everest", "Monte Kilimanjaro", "Mont Blanc"], ans: 1 },
+          { q: "Quantos minutos tem um dia completo?", opts: ["1200", "1440", "1600", "1800"], ans: 1 }
+        ]
+      },
+      marvel: {
+        facil: [
+          { q: "Qual é o verdadeiro nome do Homem de Ferro?", opts: ["Steve Rogers", "Tony Stark", "Bruce Banner", "Peter Parker"], ans: 1 },
+          { q: "De que metal é feito o escudo do Capitão América?", opts: ["Adamantium", "Vibranium", "Titânio", "Carbonite"], ans: 1 },
+          { q: "Qual é o planeta natal do Thor?", opts: ["Terra", "Xandar", "Asgard", "Sakaar"], ans: 2 },
+          { q: "Quem é o vilão principal que reuniu as Joias do Infinito?", opts: ["Loki", "Thanos", "Ultron", "Galactus"], ans: 1 },
+          { q: "Qual é a identidade secreta do Homem-Aranha?", opts: ["Miles Morales", "Peter Parker", "Ned Leeds", "Harry Osborn"], ans: 1 },
+          { q: "Qual vilão é o arqui-inimigo de Miles Morales em 'Spider-Man: Into the Spider-Verse'?", opts: ["Rei do Crime (Kingpin)", "Misterio", "Duende Verde", "Venom"], ans: 0 },
+          { q: "Como o Hulk ganha a sua força?", opts: ["Soro do Super Soldado", "Radiação Gamma", "Picada de Inseto", "Magia"], ans: 1 },
+          { q: "Qual é a heroína mais rápida dos Vingadores?", opts: ["Capitã Marvel", "Feiticeira Escarlate", "Viúva Negra", "Gamora"], ans: 0 },
+          { q: "Quem é o irmão adotivo de Thor?", opts: ["Odin", "Loki", "Hela", "Heimdall"], ans: 1 },
+          { q: "Qual é o país fictício governado pelo Pantera Negra?", opts: ["Latveria", "Sokovia", "Wakanda", "Atlantis"], ans: 2 }
+        ],
+        medio: [
+          { q: "Qual Joia do Infinito estava dentro do Olho de Agamotto do Doutor Estranho?", opts: ["Joia da Mente", "Joia do Tempo", "Joia do Espaço", "Joia da Realidade"], ans: 1 },
+          { q: "Quem mata o Rei do Crime no filme 'Homem-Aranha no Aranhaverso'?", opts: ["Ele é preso pelo Homem-Aranha", "Duende Verde", "Gwen Stacy", "Doutor Octopus"], ans: 0 },
+          { q: "Qual é o nome da inteligência artificial criada por Tony Stark que substituiu JARVIS?", opts: ["FRIDAY", "KAREN", "EDITH", "ULTRON"], ans: 0 },
+          { q: "Em 'Capitão América: Guerra Civil', quem fica do lado do Homem de Ferro?", opts: ["Gavião Arqueiro", "Homem-Formiga", "Visão", "Feiticeira Escarlate"], ans: 2 },
+          { q: "Qual é a verdadeira identidade do Soldado Invernal?", opts: ["Sam Wilson", "Bucky Barnes", "John Walker", "Clint Barton"], ans: 1 },
+          { q: "Qual é o nome do gato/Flerken do filme Capitã Marvel?", opts: ["Goose", "Chewie", "Tom", "Oliver"], ans: 0 },
+          { q: "Qual é a Joia do Infinito localizada em Vormir?", opts: ["Joia da Alma", "Joia do Poder", "Joia do Tempo", "Joia da Mente"], ans: 0 },
+          { q: "Quem realiza o estalo para trazer todos de volta em 'Vingadores: Ultimato'?", opts: ["Thanos", "Thor", "Hulk", "Homem de Ferro"], ans: 2 },
+          { q: "Qual herói é conhecido como o 'Mestre das Artes Místicas'?", opts: ["Loki", "Doutor Estranho", "Wong", "Visão"], ans: 1 },
+          { q: "Quem é o vilão mascarado que manipula a mente no filme 'Homem-Aranha: Longe de Casa'?", opts: ["Abutre", "Mysterio", "Electro", "Kraven"], ans: 1 }
+        ],
+        dificil: [
+          { q: "Qual é o nome do dragão que concedeu poderes a Iron Fist (Punho de Ferro)?", opts: ["Shou-Lao", "Fin Fang Foom", "Dragon Man", "Shenron"], ans: 0 },
+          { q: "Qual é o primeiro filme lançado oficialmente no Marvel Cinematic Universe (MCU)?", opts: ["O Incrível Hulk", "Homem de Ferro (2008)", "Capitão América", "Thor"], ans: 1 },
+          { q: "Qual é o verdadeiro nome da Feiticeira Escarlate?", opts: ["Wanda Maximoff", "Natasha Romanoff", "Carol Danvers", "Hope van Dyne"], ans: 0 },
+          { q: "Qual destas personagens NUNCA usou a manopla do infinito nos quadradinhos?", opts: ["Homem de Ferro", "Capitão América", "Groot", "Thanos"], ans: 2 },
+          { q: "Em que ano foi lançado o primeiro quadradinho do Homem-Aranha (Amazing Fantasy #15)?", opts: ["1960", "1962", "1965", "1970"], ans: 1 },
+          { q: "Qual é o verdadeiro nome do vilão Duende Verde original?", opts: ["Harry Osborn", "Norman Osborn", "Otto Octavius", "Eddie Brock"], ans: 1 },
+          { q: "Qual substância concede os poderes ao Demolidor (Daredevil)?", opts: ["Lixo Radioativo", "Soro Experimental", "Picada de Inseto", "Mutaçao Genética"], ans: 0 },
+          { q: "Quem foi o criador principal da maioria dos super-heróis clássicos da Marvel?", opts: ["Jack Kirby e Stan Lee", "Bob Kane", "Todd McFarlane", "Alan Moore"], ans: 0 },
+          { q: "Qual é a cidade onde se passa a maior parte das histórias do Homem-Aranha?", opts: ["Metropolis", "Gotham City", "Nova Iorque", "Central City"], ans: 2 }
+        ]
+      },
+      dc: {
+        facil: [
+          { q: "Qual é o verdadeiro nome do Batman?", opts: ["Clark Kent", "Bruce Wayne", "Barry Allen", "Arthur Curry"], ans: 1 },
+          { q: "De que planeta veio o Superman?", opts: ["Krypton", "Oa", "Thanagar", "Apokolips"], ans: 0 },
+          { q: "Qual é a cidade protegida pelo Batman?", opts: ["Metropolis", "Central City", "Gotham City", "Star City"], ans: 2 },
+          { q: "Qual é a fraqueza principal do Superman?", opts: ["Fogo", "Kryptonita", "Água", "Magia de Ouro"], ans: 1 },
+          { q: "Quem é o arqui-inimigo do Batman?", opts: ["Lex Luthor", "Coringa (Joker)", "Charada", "Pinguim"], ans: 1 },
+          { q: "Qual é o nome do super-herói mais rápido da DC?", opts: ["Superman", "Flash", "Aquaman", "Ciborgue"], ans: 1 },
+          { q: "Quem é a princesa das Amazonas na DC?", opts: ["Mulher-Gato", "Mulher-Maravilha", "Supergirl", "Batwoman"], ans: 1 },
+          { q: "Qual é a identidade secreta do Flash (Barry Allen)?", opts: ["Policial Científico", "Jornalista", "Empresário", "Piloto"], ans: 0 },
+          { q: "Qual é o herói da DC que fala com os animais marinhos?", opts: ["Lanterna Verde", "Aquaman", "Namu", "Shazam"], ans: 1 },
+          { q: "Qual é o nome do mordomo do Batman?", opts: ["Jarvis", "Alfred Pennyworth", "Gordon", "Lucius Fox"], ans: 1 }
+        ],
+        medio: [
+          { q: "Quem é o pai do Superman em Krypton?", opts: ["Jor-El", "Zod", "Jonathan Kent", "Kara-El"], ans: 0 },
+          { q: "Qual é o nome da equipa de vilões forçados a fazer missões secretas para o governo?", opts: ["Liga da Injustiça", "Esquadrão Suicida", "Sexteto Sinistro", "Os Renegados"], ans: 1 },
+          { q: "Qual palavra mágica o jovem Billy Batson diz para se transformar no Shazam?", opts: ["Abracadabra", "Shazam!", "Krypton!", "EUREKA!"], ans: 1 },
+          { q: "Qual é o verdadeiro nome do Lanterna Verde Hal Jordan?", opts: ["Hal Jordan", "John Stewart", "Guy Gardner", "Kyle Rayner"], ans: 0 },
+          { q: "Quem é o governante do planeta Apokolips e grande vilão da Liga da Justiça?", opts: ["Brainiac", "Darkseid", "Doomsday", "Steppenwolf"], ans: 1 },
+          { q: "Qual é a arma icónica da Mulher-Maravilha que obriga a dizer a verdade?", opts: ["Espada da Justiça",
